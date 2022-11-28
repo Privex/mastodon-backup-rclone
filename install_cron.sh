@@ -33,6 +33,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 : ${CRON_TIME_WEEKDAY="THU"}
 : ${CRON_TIME_DAY="01"}
 : ${CRON_STDOUT="0"}
+: ${CRON_LOG_FILE="/var/log/mastodon-backup.log"}
 
 : ${SITE_BACKUP_CMD="${DIR}/sitebackup.sh -v -np &>> /var/log/mastodon-backup.log"}
 : ${PG_BACKUP_CMD="${DIR}/pgbackup.sh -v -np &>> /var/log/mastodon-backup.log"}
@@ -188,6 +189,13 @@ else
     msgerr " >> Setting perms on $CRON_OUT to: $CRON_PERMS"
     chmod -v "$CRON_PERMS" "$CRON_OUT"
 fi
+
+msgerr " >> Creating log file: $CRON_LOG_FILE"
+msgerr "         Perms: 775"
+msgerr "         Owner: ${CRON_USER}:syslog"
+touch "$CRON_LOG_FILE"
+chmod 775 "$CRON_LOG_FILE"
+chown "${CRON_USER}:syslog" "$CRON_LOG_FILE"
 
 if (( INSTALL_LOGROTATE )); then install-logrotate; fi
 

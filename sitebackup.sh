@@ -31,6 +31,11 @@ source "${DIR}/vars.sh"
 : ${BK_DIR="${BK_DIR_BASE%/}/site"}
 source "${DIR}/core.sh"
 : ${BK_TYPE="$BK_TYPE_SITE"}
+####
+# Exclude files/folders from the site backup. Separate by ':'
+####
+: ${BK_EXCLUDE="${SITE_DIR}/public/system/cache:live/public/system/cache:public/system/cache"}
+IFS=':' read -ra EXCLUDE_SPLIT <<< "$BK_EXCLUDE"
 
 auto-folder "$BK_DIR"
 
@@ -39,10 +44,18 @@ auto-folder "$BK_DIR"
 compress-file() {
     local c_file="$1" c_out="$2" compressor="$3"
     shift 3
+    tar_args=()
+    if [[ -n "$BK_EXCLUDE" ]]; then
+        for f in "${EXCLUDE_SPLIT[@]}"; do
+        tar_args+=("--exclude=${f}")
+        done
+    fi
+    tar_args+=("-cf" "-" "$c_file")
     compress_args=("$@")
     vlog " [...] Tarring '$c_file' and compressing it with $compressor into: $c_out"
-    vlog "       Compressor args: ${compress_args[*]} \n"
-    tar cf - "$c_file" | "$compressor" "${compress_args[@]}" > "$c_out"
+    vlog "       Compressor args: ${compress_args[*]} "
+    vlog "              Tar args: ${tar_args[*]} \n"
+    tar "${tar_args[@]}" | "$compressor" "${compress_args[@]}" > "$c_out"
     _ret=$?
     if (( _ret )); then
         verr " [ERROR] Tar or $compressor returned non-zero exit code '$_ret' - something went wrong!\n"

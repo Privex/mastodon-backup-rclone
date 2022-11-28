@@ -17,9 +17,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$DIR"
 
-./pgbackup.sh
+./pgbackup.sh "$@"
 
-./sitebackup.sh
+./sitebackup.sh "$@"
 
 
 ################################################################################################

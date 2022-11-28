@@ -1,0 +1,10 @@
+/var/log/mastodon-backup.log {
+    weekly
+    missingok
+    rotate 4
+    compress
+    delaycompress
+    notifempty
+    create 0644 mastodon syslog
+    su mastodon syslog
+}

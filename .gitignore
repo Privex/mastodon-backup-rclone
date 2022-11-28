@@ -1,0 +1,10 @@
+.env
+backups/
+backup/
+~*
+*.swp
+*.sql
+postgres/
+postgresql/
+site/
+live/
